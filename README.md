@@ -2,8 +2,7 @@ Tema:
 Agente IA [Agente Inteligente de Promesas de Pago]
 
 Integrantes
-
-William [Tu Apellido] (@TuUsuarioGitHub)
+Rosado Rodriguez William Ariel (@williamr122)
 
 1. DESCRIPCIÓN
    Nuestro agente IA permite una negociación, donde el cliente puede proponer montos y fechas de pago de forma natural (ej: "pago el próximo lunes", "pago el próximo mes", "pago el próximo año"), y el sistema se encarga de estructurar bien esa información. El agente interactúa mediante texto y voz, procesa y actualiza automáticamente una base de datos en Excel, evaluando el riesgo crediticio en tiempo real.
