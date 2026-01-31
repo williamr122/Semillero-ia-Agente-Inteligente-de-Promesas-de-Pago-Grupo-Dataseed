@@ -108,7 +108,6 @@ st.dataframe(df_cartera[['ID', 'Nombre', 'Deuda_Total', 'Monto_Prometido', 'Fech
 st.sidebar.divider()
 audio_input = st.sidebar.audio_input("Grabar Propuesta")
 
-# --- LÓGICA DE CONVERSACIÓN ---
 if "messages" not in st.session_state or st.session_state.get("last_id") != c_id:
     st.session_state.messages = []
     st.session_state.last_id = c_id
