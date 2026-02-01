@@ -1,8 +1,10 @@
-src/.env
-src/__pycache__/
-*.pyc
-.pytest_cache/
+
+**/.env
+**/.env*
+**/__pycache__/
+**/.pytest_cache/
 venv/
 env/
+*.pyc
 *.mp3
-log_conversaciones.txt
+*.txt

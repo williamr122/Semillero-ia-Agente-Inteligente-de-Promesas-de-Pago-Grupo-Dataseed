@@ -74,7 +74,6 @@ def registrar_promesa_api(id_c, monto, fecha):
         return riesgo
     return None
 
-# --- INTERFAZ STREAMLIT ---
 st.set_page_config(page_title="Agente IA", layout="wide")
 st.title("🛡️ Agente Inteligente de Promesas de Pago")
 
