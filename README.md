@@ -34,8 +34,7 @@ python -m venv venv
 pip install -r requirements.txt
 
 4.3 Configuración de Api Key
-edita el archivo (.env-ejemplo) a (.env)
-dentro de ese archivo se debe agregar la clave: GOOGLE_API_KEY=SU_API_AQUI.
+edita el archivo (.env.ejemplo) a (.env) y dentro de ese archivo se debe agregar la clave: GOOGLE_API_KEY=SU_API_AQUI.
 
 4.4 Ejecutar la aplicación
 streamlit run src/main.py
