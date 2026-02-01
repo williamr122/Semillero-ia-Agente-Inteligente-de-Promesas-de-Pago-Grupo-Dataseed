@@ -5,11 +5,13 @@ from google import genai
 from google.genai import types
 from datetime import datetime, timedelta
 from gtts import gTTS
-from dotenv import load_dotenv  
+from dotenv import load_dotenv
 
-load_dotenv()  
+
+load_dotenv(override=True)
 
 api_key = os.getenv("GOOGLE_API_KEY")
+
 
 if not api_key:
     st.error("Error: No se encontró la 'GOOGLE_API_KEY' en el archivo .env")
@@ -22,21 +24,26 @@ LOG_FILE = "log_conversaciones.txt"
 HOY = datetime.now()
 FECHA_HOY_STR = HOY.strftime("%A, %d de %B de %Y")
 
-# --- CONFIGURACIÓN DEL SISTEMA ---
 PROMPT_SISTEMA = f"""
-Eres un Asesor de Cobranza Experto en Negociación y Conciliación.
-HOY ES: {FECHA_HOY_STR}.
+Eres Asistente de cobros  
+CONTEXTO: El cliente Juan Perez tiene un saldo total de $500.
+HOY ES: {FECHA_HOY_STR}. (Año 2026).
 
-INSTRUCCIONES CRUCIALES (Mantener funcionamiento actual):
-1. REVISA EL HISTORIAL: Mira mensajes anteriores. Si el monto está en texto y la fecha en audio, ÚNELOS.
-2. ACCIÓN INMEDIATA: Al tener Monto y Fecha, ejecuta 'registrar_promesa' sin dudar.
-3. TRADUCCIÓN TEMPORAL: Convierte "mañana", "lunes" o "fin de mes" a DD/MM/YYYY según {HOY.strftime('%d/%m/%Y')}.
+REGLAS DE NEGOCIACIÓN (CRÍTICO):
+1. UMBRAL DEL 40%: El 40% de la deuda es $200.
+   - SI EL MONTO ES < $200: El tono debe ser SERIO. Dile que el abono es muy bajo y que intente llegar al menos a $200 para evitar recargos.
+   - SI EL MONTO ES >= $200: El tono debe ser ALEGRE. Felicítalo por su gran compromiso.
 
-NUEVAS REGLAS DE NEGOCIACIÓN (Aplicar en el punto 4):
-4. TONO Y CONSEJO PERSONALIZADO: Tras registrar, resume: "Escuché [fecha] y [monto]. Tono: [Análisis] corto. Registro exitoso." Y añade el consejo según estos criterios:
-   - SI EL PAGO ES EN < 15 DÍAS: Felicita efusivamente al cliente por su excelente disposición y compromiso temprano.
-   - SI EL PAGO ES EN < 30 DÍAS: Agradece la intención y confirma que ayuda a mantener su cuenta al día.
-   - SI EL PAGO ES EN > 30 DÍAS O AÑO PRÓXIMO: Advierte seriamente que el plazo es demasiado largo. Indica que un monto bajo en una fecha tan lejana afecta su score crediticio, genera intereses adicionales y no detiene procesos de coactiva.
+2. PROHIBICIÓN DE LENGUAJE TÉCNICO:
+   - Estamos en 2026; mañana NO es una fecha lejana.
+
+3. ESTRUCTURA DE RESPUESTA:
+   "Registro exitoso: $[MONTO] para el [FECHA].
+   [CONSEJO_AMIGABLE_O_NEGOCIACIÓN]"
+
+GUÍA DE CONSEJOS:
+- Si paga < $200: "Gracias por el abono, pero es menor al 40% de su deuda. ¿Podría intentar abonar un poco más para que su score no baje?"
+- Si paga >= $200: "¡Excelente! Un abono de esa cantidad demuestra su compromiso. ¡Su historial crediticio se mantendrá impecable!"
 """
 def guardar_log(cliente, mensaje, rol):
     with open(LOG_FILE, "a", encoding="utf-8") as f:
@@ -158,19 +165,17 @@ if user_input:
             )
 
             for part in response.candidates[0].content.parts:
-                text_res = ""
-                if part.function_call:
-                    f = part.function_call.args
-                    riesgo = registrar_promesa_api(c_id, f['monto'], f['fecha'])
-                    
-                    text_res = f"Registro exitoso: ${f['monto']} para el {f['fecha']}. Riesgo: {riesgo}. "
-                    
-                    res_consejo = client.models.generate_content(
-                        model="gemini-2.5-flash",
-                        contents=f"El cliente agendó para el {f['fecha']} un monto de {f['monto']}. Según tus reglas de negociación, genera un consejo breve sobre su riesgo."
-                    )
-                    text_res += res_consejo.text
-
+               if part.function_call:
+                f = part.function_call.args
+                registrar_promesa_api(c_id, f['monto'], f['fecha']) 
+    
+                text_res = f"Registro exitoso: ${f['monto']} para el {f['fecha']}. "
+    
+                res_consejo = client.models.generate_content(
+                    model="gemini-2.5-flash",
+                         contents=f"Genera solo el mensaje corto de agradecimiento para un pago el {f['fecha']} según el PROMPT_SISTEMA."
+                     )
+                text_res += res_consejo.text
                 if text_res:
                     audio_p = texto_a_voz(text_res)
                     st.session_state.messages.append({"role": "assistant", "content": text_res, "audio": audio_p})
